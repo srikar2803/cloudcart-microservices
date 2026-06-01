@@ -1,72 +1,89 @@
 services:
 
-  auth-service:
-    build: ./auth-service
-    container_name: auth-service
-    ports:
-      - "5500:5000"
+auth-service:
+build:
+context: ./auth-service
+dockerfile: Dockerfile
 
-    restart: always
+container_name: auth-service
 
+ports:
+  - "5500:5000"
 
+restart: always
 
-  product-service:
-    build: ./product-service
-    container_name: product-service
+product-service:
+build:
+context: ./product-service
+dockerfile: Dockerfile
 
-    ports:
-      - "5501:5001"
+container_name: product-service
 
-    environment:
-      DB_HOST: postgres
-      DB_USER: admin
-      DB_PASSWORD: admin123
-      DB_NAME: productsdb
-      REDIS_HOST: redis
+ports:
+  - "5501:5001"
 
-    depends_on:
-      - postgres
-      - redis
+environment:
+  DB_HOST: postgres
+  DB_USER: admin
+  DB_PASSWORD: admin123
+  DB_NAME: productsdb
+  REDIS_HOST: redis
 
-    restart: always
+depends_on:
+  - postgres
+  - redis
 
+restart: always
 
+api-gateway:
+build:
+context: ./api-gateway
+dockerfile: Dockerfile
 
-  postgres:
-    image: postgres:15
-    container_name: postgres-db
+container_name: api-gateway
 
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin123
-      POSTGRES_DB: productsdb
+ports:
+  - "8080:8080"
 
-    expose:
-      - "5432"
+depends_on:
+  - auth-service
+  - product-service
 
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
+restart: always
 
-    restart: always
+postgres:
+image: postgres:15
 
+container_name: postgres-db
 
+environment:
+  POSTGRES_USER: admin
+  POSTGRES_PASSWORD: admin123
+  POSTGRES_DB: productsdb
 
-  redis:
-    image: redis:7
-    container_name: redis-cache
+ports:
+  - "5432:5432"
 
-    expose:
-      - "6379"
+volumes:
+  - postgres-data:/var/lib/postgresql/data
 
-    volumes:
-      - redis-data:/data
+restart: always
 
-    restart: always
+redis:
+image: redis:7
 
+container_name: redis-cache
 
+ports:
+  - "6379:6379"
+
+volumes:
+  - redis-data:/data
+
+restart: always
 
 volumes:
 
-  postgres-data:
+postgres-data:
 
-  redis-data:
+redis-data:

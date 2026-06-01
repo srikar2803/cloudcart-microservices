@@ -67,7 +67,7 @@ stages {
 
             echo 'Checking Docker Compose installation...'
 
-            sh 'docker compose version'
+            sh 'docker-compose --version'
 
             echo 'Listing project files...'
 
@@ -87,7 +87,7 @@ stages {
 
             echo 'Building Docker containers...'
 
-            sh 'docker compose build'
+            sh 'docker-compose build'
 
         }
 
@@ -103,7 +103,7 @@ stages {
 
             echo 'Stopping old containers...'
 
-            sh 'docker compose down || true'
+            sh 'docker-compose down || true'
 
         }
 
@@ -119,7 +119,7 @@ stages {
 
             echo 'Deploying application containers...'
 
-            sh 'docker compose up -d'
+            sh 'docker-compose up -d'
 
         }
 

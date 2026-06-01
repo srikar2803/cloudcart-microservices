@@ -1,0 +1,72 @@
+services:
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "5500:5000"
+
+    restart: always
+
+
+
+  product-service:
+    build: ./product-service
+    container_name: product-service
+
+    ports:
+      - "5501:5001"
+
+    environment:
+      DB_HOST: postgres
+      DB_USER: admin
+      DB_PASSWORD: admin123
+      DB_NAME: productsdb
+      REDIS_HOST: redis
+
+    depends_on:
+      - postgres
+      - redis
+
+    restart: always
+
+
+
+  postgres:
+    image: postgres:15
+    container_name: postgres-db
+
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: productsdb
+
+    expose:
+      - "5432"
+
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+    restart: always
+
+
+
+  redis:
+    image: redis:7
+    container_name: redis-cache
+
+    expose:
+      - "6379"
+
+    volumes:
+      - redis-data:/data
+
+    restart: always
+
+
+
+volumes:
+
+  postgres-data:
+
+  redis-data:

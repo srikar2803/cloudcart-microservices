@@ -1,13 +1,10 @@
 pipeline {
 
-
 agent any
 
 environment {
 
     APP_NAME = "cloudcart-platform"
-
-    DOCKER_COMPOSE = "docker-compose"
 
     BUILD_NUMBER = "${env.BUILD_ID}"
 
@@ -23,6 +20,10 @@ options {
 
 stages {
 
+    // =========================
+    // CLEAN WORKSPACE
+    // =========================
+
     stage('Clean Workspace') {
 
         steps {
@@ -34,6 +35,10 @@ stages {
         }
 
     }
+
+    // =========================
+    // CLONE REPOSITORY
+    // =========================
 
     stage('Clone Repository') {
 
@@ -48,13 +53,23 @@ stages {
 
     }
 
+    // =========================
+    // VERIFY ENVIRONMENT
+    // =========================
+
     stage('Verify Environment') {
 
         steps {
 
+            echo 'Checking Docker installation...'
+
             sh 'docker --version'
 
-            sh 'docker-compose --version'
+            echo 'Checking Docker Compose installation...'
+
+            sh 'docker compose version'
+
+            echo 'Listing project files...'
 
             sh 'ls -la'
 
@@ -62,17 +77,25 @@ stages {
 
     }
 
+    // =========================
+    // BUILD CONTAINERS
+    // =========================
+
     stage('Build Docker Containers') {
 
         steps {
 
             echo 'Building Docker containers...'
 
-            sh 'docker-compose build'
+            sh 'docker compose build'
 
         }
 
     }
+
+    // =========================
+    // STOP OLD CONTAINERS
+    // =========================
 
     stage('Stop Old Containers') {
 
@@ -80,11 +103,15 @@ stages {
 
             echo 'Stopping old containers...'
 
-            sh 'docker-compose down || true'
+            sh 'docker compose down || true'
 
         }
 
     }
+
+    // =========================
+    // DEPLOY APPLICATION
+    // =========================
 
     stage('Deploy Application') {
 
@@ -92,11 +119,15 @@ stages {
 
             echo 'Deploying application containers...'
 
-            sh 'docker-compose up -d'
+            sh 'docker compose up -d'
 
         }
 
     }
+
+    // =========================
+    // HEALTH CHECK
+    // =========================
 
     stage('Health Check') {
 
@@ -110,6 +141,10 @@ stages {
 
     }
 
+    // =========================
+    // API SMOKE TEST
+    // =========================
+
     stage('API Smoke Test') {
 
         steps {
@@ -119,11 +154,16 @@ stages {
             sh '''
             curl -f http://localhost:8080/products/products?page=1&limit=5
             '''
+
         }
 
     }
 
 }
+
+// =========================
+// POST ACTIONS
+// =========================
 
 post {
 
@@ -146,6 +186,5 @@ post {
     }
 
 }
-
 
 }

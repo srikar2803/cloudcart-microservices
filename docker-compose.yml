@@ -68,7 +68,7 @@ services:
       POSTGRES_DB: productsdb
 
     ports:
-      - "5432:5432"
+      - "5435:5432"
 
     volumes:
       - postgres-data:/var/lib/postgresql/data
@@ -83,7 +83,7 @@ services:
     container_name: redis-cache
 
     ports:
-      - "6379:6379"
+      - "6380:6379"
 
     volumes:
       - redis-data:/data

@@ -5,8 +5,6 @@ services:
       context: ./auth-service
       dockerfile: Dockerfile
 
-    container_name: auth-service
-
     ports:
       - "5500:5000"
 
@@ -22,8 +20,6 @@ services:
 
   postgres:
     image: postgres:15
-
-    container_name: postgres-db
 
     environment:
       POSTGRES_USER: admin
@@ -49,8 +45,6 @@ services:
   flyway:
     image: flyway/flyway
 
-    container_name: flyway
-
     depends_on:
       postgres:
         condition: service_healthy
@@ -68,8 +62,6 @@ services:
 
   redis:
     image: redis:7
-
-    container_name: redis-cache
 
     ports:
       - "6380:6379"
@@ -91,8 +83,6 @@ services:
     build:
       context: ./product-service
       dockerfile: Dockerfile
-
-    container_name: product-service
 
     ports:
       - "5501:5001"
@@ -124,8 +114,6 @@ services:
     build:
       context: ./api-gateway
       dockerfile: Dockerfile
-
-    container_name: api-gateway
 
     ports:
       - "8080:8080"

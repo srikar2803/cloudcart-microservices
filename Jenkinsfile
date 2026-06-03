@@ -27,6 +27,7 @@ pipeline {
             steps {
 
                 echo 'Cleaning workspace...'
+
                 cleanWs()
 
             }
@@ -81,7 +82,9 @@ pipeline {
 
                 echo 'Building Docker containers...'
 
-                sh 'docker-compose build'
+                sh '''
+                docker-compose build
+                '''
 
             }
 
@@ -95,7 +98,7 @@ pipeline {
 
             steps {
 
-                echo 'Stopping old containers...'
+                echo 'Stopping old CloudCart containers...'
 
                 sh '''
                 docker-compose down || true
@@ -113,7 +116,7 @@ pipeline {
 
             steps {
 
-                echo 'Deploying application containers...'
+                echo 'Deploying CloudCart application...'
 
                 sh '''
                 docker-compose up -d
@@ -131,10 +134,10 @@ pipeline {
 
             steps {
 
-                echo 'Checking running containers...'
+                echo 'Checking CloudCart containers only...'
 
                 sh '''
-                docker ps
+                docker ps | grep cloudcart
                 '''
 
             }
@@ -192,4 +195,3 @@ pipeline {
     }
 
 }
-

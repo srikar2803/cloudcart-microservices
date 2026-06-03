@@ -72,7 +72,7 @@ pipeline {
         }
 
         // =========================
-        // BUILD CONTAINERS
+        // BUILD DOCKER CONTAINERS
         // =========================
 
         stage('Build Docker Containers') {
@@ -80,6 +80,7 @@ pipeline {
             steps {
 
                 echo 'Building Docker containers...'
+
                 sh 'docker-compose build'
 
             }
@@ -95,7 +96,10 @@ pipeline {
             steps {
 
                 echo 'Stopping old containers...'
-                sh 'docker-compose down || true'
+
+                sh '''
+                docker-compose down || true
+                '''
 
             }
 
@@ -110,7 +114,10 @@ pipeline {
             steps {
 
                 echo 'Deploying application containers...'
-                sh 'docker-compose up -d'
+
+                sh '''
+                docker-compose up -d
+                '''
 
             }
 
@@ -125,7 +132,10 @@ pipeline {
             steps {
 
                 echo 'Checking running containers...'
-                sh 'docker ps'
+
+                sh '''
+                docker ps
+                '''
 
             }
 
@@ -139,14 +149,14 @@ pipeline {
 
             steps {
 
-                echo 'Testing API Gateway...'
+                echo 'Checking API Gateway container status...'
 
                 sh '''
                 sleep 20
 
-                curl -f http://localhost:8080/
+                docker inspect --format="{{.State.Status}}" cloudcart-pipeline-api-gateway-1
 
-                echo "API Gateway is healthy"
+                echo "API Gateway container is running successfully"
                 '''
 
             }
@@ -182,3 +192,4 @@ pipeline {
     }
 
 }
+

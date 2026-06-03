@@ -1,191 +1,184 @@
 pipeline {
 
-agent any
+    agent any
 
-environment {
+    environment {
 
-    APP_NAME = "cloudcart-platform"
+        APP_NAME = "cloudcart-platform"
+        BUILD_NUMBER = "${env.BUILD_ID}"
 
-    BUILD_NUMBER = "${env.BUILD_ID}"
+    }
 
-}
+    options {
 
-options {
+        timestamps()
+        disableConcurrentBuilds()
 
-    timestamps()
+    }
 
-    disableConcurrentBuilds()
+    stages {
 
-}
+        // =========================
+        // CLEAN WORKSPACE
+        // =========================
 
-stages {
+        stage('Clean Workspace') {
 
-    // =========================
-    // CLEAN WORKSPACE
-    // =========================
+            steps {
 
-    stage('Clean Workspace') {
+                echo 'Cleaning workspace...'
+                cleanWs()
 
-        steps {
+            }
 
-            echo 'Cleaning workspace...'
+        }
 
-            cleanWs()
+        // =========================
+        // CLONE REPOSITORY
+        // =========================
+
+        stage('Clone Repository') {
+
+            steps {
+
+                echo 'Cloning GitHub repository...'
+
+                git branch: 'main',
+                url: 'https://github.com/srikar2803/cloudcart-microservices.git'
+
+            }
+
+        }
+
+        // =========================
+        // VERIFY ENVIRONMENT
+        // =========================
+
+        stage('Verify Environment') {
+
+            steps {
+
+                echo 'Checking Docker installation...'
+                sh 'docker --version'
+
+                echo 'Checking Docker Compose installation...'
+                sh 'docker-compose --version'
+
+                echo 'Listing project files...'
+                sh 'ls -la'
+
+            }
+
+        }
+
+        // =========================
+        // BUILD CONTAINERS
+        // =========================
+
+        stage('Build Docker Containers') {
+
+            steps {
+
+                echo 'Building Docker containers...'
+                sh 'docker-compose build'
+
+            }
+
+        }
+
+        // =========================
+        // STOP OLD CONTAINERS
+        // =========================
+
+        stage('Stop Old Containers') {
+
+            steps {
+
+                echo 'Stopping old containers...'
+                sh 'docker-compose down || true'
+
+            }
+
+        }
+
+        // =========================
+        // DEPLOY APPLICATION
+        // =========================
+
+        stage('Deploy Application') {
+
+            steps {
+
+                echo 'Deploying application containers...'
+                sh 'docker-compose up -d'
+
+            }
+
+        }
+
+        // =========================
+        // HEALTH CHECK
+        // =========================
+
+        stage('Health Check') {
+
+            steps {
+
+                echo 'Checking running containers...'
+                sh 'docker ps'
+
+            }
+
+        }
+
+        // =========================
+        // API SMOKE TEST
+        // =========================
+
+        stage('API Smoke Test') {
+
+            steps {
+
+                echo 'Testing API Gateway...'
+
+                sh '''
+                sleep 20
+
+                curl -f http://localhost:8080/
+
+                echo "API Gateway is healthy"
+                '''
+
+            }
 
         }
 
     }
 
     // =========================
-    // CLONE REPOSITORY
+    // POST ACTIONS
     // =========================
 
-    stage('Clone Repository') {
+    post {
 
-        steps {
+        success {
 
-            echo 'Cloning GitHub repository...'
+            echo 'Build and deployment successful!'
 
-            git branch: 'main',
-            url: 'https://github.com/srikar2803/cloudcart-microservices.git'
+        }
+
+        failure {
+
+            echo 'Pipeline failed!'
+
+        }
+
+        always {
+
+            echo 'Pipeline execution completed.'
 
         }
 
     }
-
-    // =========================
-    // VERIFY ENVIRONMENT
-    // =========================
-
-    stage('Verify Environment') {
-
-        steps {
-
-            echo 'Checking Docker installation...'
-
-            sh 'docker --version'
-
-            echo 'Checking Docker Compose installation...'
-
-            sh 'docker-compose --version'
-
-            echo 'Listing project files...'
-
-            sh 'ls -la'
-
-        }
-
-    }
-
-    // =========================
-    // BUILD CONTAINERS
-    // =========================
-
-    stage('Build Docker Containers') {
-
-        steps {
-
-            echo 'Building Docker containers...'
-
-            sh 'docker-compose build'
-
-        }
-
-    }
-
-    // =========================
-    // STOP OLD CONTAINERS
-    // =========================
-
-    stage('Stop Old Containers') {
-
-        steps {
-
-            echo 'Stopping old containers...'
-
-            sh 'docker-compose down || true'
-
-        }
-
-    }
-
-    // =========================
-    // DEPLOY APPLICATION
-    // =========================
-
-    stage('Deploy Application') {
-
-        steps {
-
-            echo 'Deploying application containers...'
-
-            sh 'docker-compose up -d'
-
-        }
-
-    }
-
-    // =========================
-    // HEALTH CHECK
-    // =========================
-
-    stage('Health Check') {
-
-        steps {
-
-            echo 'Checking running containers...'
-
-            sh 'docker ps'
-
-        }
-
-    }
-
-// =========================
-// API SMOKE TEST
-// =========================
-
-stage('API Smoke Test') {
-
-    steps {
-
-        echo 'Testing API Gateway...'
-
-        sh '''
-        sleep 20
-
-        curl -f http://localhost:8080/
-
-        echo "API Gateway is healthy"
-        '''
-
-    }
-
-}
-// =========================
-// POST ACTIONS
-// =========================
-
-post {
-
-    success {
-
-        echo 'Build and deployment successful!'
-
-    }
-
-    failure {
-
-        echo 'Pipeline failed!'
-
-    }
-
-    always {
-
-        echo 'Pipeline execution completed.'
-
-    }
-
-}
 
 }

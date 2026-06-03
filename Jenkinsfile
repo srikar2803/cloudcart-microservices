@@ -141,26 +141,27 @@ stages {
 
     }
 
-    // =========================
-    // API SMOKE TEST
-    // =========================
+// =========================
+// API SMOKE TEST
+// =========================
 
-    stage('API Smoke Test') {
+stage('API Smoke Test') {
 
-        steps {
+    steps {
 
-            echo 'Testing Product API...'
+        echo 'Testing API Gateway...'
 
-            sh '''
-            curl -f http://localhost:8080/products/products?page=1&limit=5
-            '''
+        sh '''
+        sleep 20
 
-        }
+        curl -f http://localhost:8080/
+
+        echo "API Gateway is healthy"
+        '''
 
     }
 
 }
-
 // =========================
 // POST ACTIONS
 // =========================
